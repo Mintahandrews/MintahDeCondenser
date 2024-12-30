@@ -9,7 +9,10 @@ const Hero = () => (
       Mintah De Condenser
     </h1>
     <h2 className="sm:text-lg max-w-2xl mx-auto text-gray-500 text-center mt-9">
-      Transform your videos with professional-grade compression. Reduce file sizes by up to <span className="font-semibold text-gray-700">90%</span> while maintaining exceptional quality. Perfect for social media, presentations, and more.
+      Transform your videos with professional-grade compression. Reduce file
+      sizes by up to <span className="font-semibold text-gray-700">90%</span>{" "}
+      while maintaining exceptional quality. Perfect for social media,
+      presentations, and more.
     </h2>
     <div className="flex flex-col sm:flex-row gap-4 items-center justify-center mt-10 mb-10">
       <Link
@@ -20,7 +23,7 @@ const Hero = () => (
       </Link>
       <Link
         className="text-sm text-gray-500 hover:text-gray-900 flex items-center gap-2"
-        href={"/about"}
+        href={"/docs"}
       >
         Learn more <span className="text-lg">→</span>
       </Link>
