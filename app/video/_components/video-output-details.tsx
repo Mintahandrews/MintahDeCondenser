@@ -22,14 +22,14 @@ export const VideoOutputDetails = ({
   );
 
   const download = () => {
-    if (!videoFile.url) return;
+    if (!videoFile?.outputBlob) return;
     const a = document.createElement("a");
     a.style.display = "none";
-    a.href = videoFile.url;
+    a.href = URL.createObjectURL(videoFile.outputBlob);
     a.download = videoFile.output;
     document.body.appendChild(a);
     a.click();
-    URL.revokeObjectURL(videoFile.url);
+    URL.revokeObjectURL(a.href);
     document.body.removeChild(a);
   };
 

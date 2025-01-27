@@ -41,13 +41,12 @@ export default async function convertFile(
   try {
     validateVideoSettings(videoSettings);
     
-    const { file, fileName, fileType } = actionFile;
+    const { file, fileName } = actionFile;
     const output = `${removeFileExtension(fileName)}_converted.${videoSettings.videoType}`;
     
-    // Write input file
     await ffmpeg.writeFile(fileName, await fetchFile(file));
     
-    // Get appropriate command
+    // Get appropriate command based on settings
     const command = videoSettings.twitterCompressionCommand
       ? twitterCompressionCommand(fileName, output, videoSettings)
       : videoSettings.whatsappStatusCompressionCommand
@@ -56,7 +55,6 @@ export default async function convertFile(
 
     console.log("FFmpeg Command:", command.join(" "));
     
-    // Execute conversion
     await ffmpeg.exec(command);
     
     // Read output file

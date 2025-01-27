@@ -6,26 +6,33 @@ export const whatsappStatusCompressionCommand = (
   output: string,
   videoSettings?: VideoInputSettings
 ) => {
-  const audioOptions = videoSettings?.removeAudio ? ["-an"] : ["-c:a", "aac", "-b:a", "64k"];
-  const trimOptions = videoSettings?.customStartTime || videoSettings?.customEndTime ? [
-    "-ss",
-    videoSettings.customStartTime.toString(),
-    "-t",
-    (videoSettings.customEndTime - videoSettings.customStartTime).toString(),
-  ] : [];
-  
+  const audioOptions = videoSettings?.removeAudio
+    ? ["-an"]
+    : ["-c:a", "aac", "-b:a", "64k"];
+  const trimOptions =
+    videoSettings?.customStartTime || videoSettings?.customEndTime
+      ? [
+          "-ss",
+          videoSettings.customStartTime.toFixed(3),
+          "-t",
+          (videoSettings.customEndTime - videoSettings.customStartTime).toFixed(
+            3
+          ),
+        ]
+      : [];
+
   return [
+    ...(trimOptions.length ? trimOptions : []),
     "-i",
     input,
-    ...trimOptions,
     "-c:v",
     "libx264",
     "-preset",
-    "veryfast",  // Faster encoding
+    "veryfast",
     "-crf",
     "28",
     "-tune",
-    "fastdecode",  // Optimize for fast decoding
+    "fastdecode",
     ...audioOptions,
     "-movflags",
     "+faststart",
@@ -36,9 +43,9 @@ export const whatsappStatusCompressionCommand = (
     "-fs",
     "16M",
     "-vf",
-    "scale='min(1280,iw)':'-2':flags=fast_bilinear",  // Faster scaling
+    "scale='min(1280,iw)':'-2':flags=fast_bilinear",
     "-threads",
-    "0",  // Use all available CPU threads
+    "0",
     output,
   ];
 };
@@ -48,13 +55,20 @@ export const twitterCompressionCommand = (
   output: string,
   videoSettings?: VideoInputSettings
 ) => {
-  const audioOptions = videoSettings?.removeAudio ? ["-an"] : ["-c:a", "aac", "-b:a", "128k"];
-  const trimOptions = videoSettings?.customStartTime || videoSettings?.customEndTime ? [
-    "-ss",
-    videoSettings.customStartTime.toString(),
-    "-t",
-    (videoSettings.customEndTime - videoSettings.customStartTime).toString(),
-  ] : [];
+  const audioOptions = videoSettings?.removeAudio
+    ? ["-an"]
+    : ["-c:a", "aac", "-b:a", "128k"];
+  const trimOptions =
+    videoSettings?.customStartTime || videoSettings?.customEndTime
+      ? [
+          "-ss",
+          videoSettings.customStartTime.toFixed(3),
+          "-t",
+          (videoSettings.customEndTime - videoSettings.customStartTime).toFixed(
+            3
+          ),
+        ]
+      : [];
 
   return [
     "-i",
@@ -91,45 +105,44 @@ export const customVideoCompressionCommand = (
   input: string,
   output: string,
   videoSettings: VideoInputSettings
-): string[] => {
-  // Apply trim options at the input stage for better performance
-  const trimOptions = videoSettings.customStartTime || videoSettings.customEndTime ? [
-    "-ss",
-    videoSettings.customStartTime.toString(),
-    "-t",
-    (videoSettings.customEndTime - videoSettings.customStartTime).toString(),
-  ] : [];
+) => {
+  const trimOptions =
+    videoSettings.customStartTime > 0 || videoSettings.customEndTime > 0
+      ? [
+          "-ss",
+          videoSettings.customStartTime.toFixed(3),
+          "-t",
+          (videoSettings.customEndTime - videoSettings.customStartTime).toFixed(
+            3
+          ),
+        ]
+      : [];
 
-  const baseCommand = [
+  const audioOptions = videoSettings.removeAudio
+    ? ["-an"]
+    : ["-c:a", "aac", "-b:a", "128k"];
+
+  const qualityPreset = {
+    high: ["-crf", "18", "-preset", "slow"],
+    medium: ["-crf", "23", "-preset", "medium"],
+    low: ["-crf", "28", "-preset", "fast"],
+  }[videoSettings.quality] || ["-crf", "23", "-preset", "medium"];
+
+  return [
     "-i",
     input,
-    "-threads",
-    "0",  // Use all available CPU threads
+    ...trimOptions,
+    "-c:v",
+    "libx264",
+    ...qualityPreset,
+    "-pix_fmt",
+    "yuv420p",
+    "-movflags",
+    "+faststart",
+    ...audioOptions,
+    "-y",
+    output,
   ];
-  
-  // Handle audio removal if specified
-  if (videoSettings.removeAudio) {
-    baseCommand.push("-an");
-  }
-
-  const inputType = getFileExtension(input);
-  if (inputType === "mp4" && videoSettings.videoType === VideoFormats.MP4) {
-    // Special case for MP4 to MP4 conversion - use copy codec when possible
-    return [...baseCommand, ...getMP4toMP4Command(input, output, videoSettings)];
-  } else {
-    switch (videoSettings.videoType) {
-      case VideoFormats.MP4:
-        return [...baseCommand, ...getMP4Command(input, output, videoSettings)];
-      case VideoFormats.AVI:
-        return [...baseCommand, ...getAVICommand(input, output, videoSettings)];
-      case VideoFormats.MKV:
-        return [...baseCommand, ...getMKVCommand(input, output, videoSettings)];
-      case VideoFormats.MOV:
-        return [...baseCommand, ...getMOVCommand(input, output, videoSettings)];
-      default:
-        return [...baseCommand, output];
-    }
-  }
 };
 
 const getMP4toMP4Command = (
@@ -138,10 +151,10 @@ const getMP4toMP4Command = (
   videoSettings: VideoInputSettings
 ) => {
   const audioOptions = videoSettings.removeAudio ? ["-an"] : ["-c:a", "copy"];
-  
+
   return [
     "-c:v",
-    "copy",  // Use stream copy for fastest possible conversion
+    "copy", // Use stream copy for fastest possible conversion
     ...audioOptions,
     "-movflags",
     "+faststart",
@@ -154,7 +167,9 @@ const getMP4Command = (
   output: string,
   videoSettings: VideoInputSettings
 ) => {
-  const audioOptions = videoSettings.removeAudio ? ["-an"] : ["-c:a", "aac", "-b:a", "128k"];
+  const audioOptions = videoSettings.removeAudio
+    ? ["-an"]
+    : ["-c:a", "aac", "-b:a", "128k"];
 
   return [
     "-c:v",
@@ -189,7 +204,9 @@ const getMOVCommand = (
   output: string,
   videoSettings: VideoInputSettings
 ) => {
-  const audioOptions = videoSettings.removeAudio ? ["-an"] : ["-c:a", "aac", "-b:a", "128k"];
+  const audioOptions = videoSettings.removeAudio
+    ? ["-an"]
+    : ["-c:a", "aac", "-b:a", "128k"];
 
   return [
     "-c:v",
@@ -216,7 +233,9 @@ const getMKVCommand = (
   output: string,
   videoSettings: VideoInputSettings
 ) => {
-  const audioOptions = videoSettings.removeAudio ? ["-an"] : ["-c:a", "aac", "-b:a", "128k"];
+  const audioOptions = videoSettings.removeAudio
+    ? ["-an"]
+    : ["-c:a", "aac", "-b:a", "128k"];
 
   return [
     "-c:v",
@@ -241,7 +260,9 @@ const getAVICommand = (
   output: string,
   videoSettings: VideoInputSettings
 ) => {
-  const audioOptions = videoSettings.removeAudio ? ["-an"] : ["-c:a", "aac", "-b:a", "128k"];
+  const audioOptions = videoSettings.removeAudio
+    ? ["-an"]
+    : ["-c:a", "aac", "-b:a", "128k"];
 
   return [
     "-c:v",

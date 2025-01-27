@@ -19,26 +19,14 @@ export const VideoTrim = ({
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const isInitialMount = useRef(true);
 
-  // Validate and format times
-  const startTime = calculateTimeInHoursMinutesSeconds(
-    Math.max(0, videoSettings.customStartTime)
-  );
-  const endTime = calculateTimeInHoursMinutesSeconds(
-    Math.min(videoEndTime, videoSettings.customEndTime)
-  );
-
   const handleVideoMetadata = useCallback(
     (video: HTMLVideoElement) => {
-      const durationInSeconds = video.duration;
+      const durationInSeconds = Math.floor(video.duration);
       if (isNaN(durationInSeconds) || durationInSeconds <= 0) return;
 
       setVideoEndTime(durationInSeconds);
 
-      // Only update settings on initial mount or when duration changes significantly
-      if (
-        isInitialMount.current ||
-        Math.abs(durationInSeconds - videoEndTime) > 1
-      ) {
+      if (isInitialMount.current) {
         isInitialMount.current = false;
         onVideoSettingsChange({
           ...videoSettings,
@@ -47,7 +35,7 @@ export const VideoTrim = ({
         });
       }
     },
-    [videoEndTime, videoSettings, onVideoSettingsChange]
+    [videoSettings, onVideoSettingsChange]
   );
 
   useEffect(() => {
@@ -58,33 +46,46 @@ export const VideoTrim = ({
 
     videoRef.current = video;
 
-    // Handle initial load
-    if (video.readyState >= 1) {
-      handleVideoMetadata(video);
-    }
+    const handleLoadedMetadata = () => {
+      if (video.readyState >= 1) {
+        handleVideoMetadata(video);
+      }
+    };
 
-    // Setup event listeners
-    const handleLoadedMetadata = () => handleVideoMetadata(video);
-    const handleDurationChange = () => handleVideoMetadata(video);
-
+    handleLoadedMetadata(); // Initial check
     video.addEventListener("loadedmetadata", handleLoadedMetadata);
-    video.addEventListener("durationchange", handleDurationChange);
+    video.addEventListener("durationchange", handleLoadedMetadata);
 
     return () => {
       video.removeEventListener("loadedmetadata", handleLoadedMetadata);
-      video.removeEventListener("durationchange", handleDurationChange);
+      video.removeEventListener("durationchange", handleLoadedMetadata);
     };
   }, [handleVideoMetadata]);
 
-  // Validate trim values only when user changes them
   const handleTrimChange = useCallback(
     (start: number, end: number) => {
-      if (start >= 0 && end <= videoEndTime && start < end) {
+      // Ensure values are within valid range
+      const validStart = Math.max(0, Math.min(start, videoEndTime));
+      const validEnd = Math.max(validStart, Math.min(end, videoEndTime));
+
+      // Only update if values are valid and different from current
+      if (
+        validStart >= 0 &&
+        validEnd <= videoEndTime &&
+        validStart < validEnd &&
+        (validStart !== videoSettings.customStartTime ||
+          validEnd !== videoSettings.customEndTime)
+      ) {
         onVideoSettingsChange({
           ...videoSettings,
-          customEndTime: end,
-          customStartTime: start,
+          customEndTime: validEnd,
+          customStartTime: validStart,
         });
+
+        // Update video current time when trim changes
+        if (videoRef.current) {
+          videoRef.current.currentTime = validStart;
+        }
       }
     },
     [videoEndTime, videoSettings, onVideoSettingsChange]
@@ -126,11 +127,17 @@ export const VideoTrim = ({
         <div className="flex justify-between">
           <div>
             <p className="text-gray-500">Start Time</p>
-            <p className="font-medium">{startTime}</p>
+            <p className="font-medium">
+              {calculateTimeInHoursMinutesSeconds(
+                videoSettings.customStartTime
+              )}
+            </p>
           </div>
           <div>
             <p className="text-gray-500">End Time</p>
-            <p className="font-medium">{endTime}</p>
+            <p className="font-medium">
+              {calculateTimeInHoursMinutesSeconds(videoSettings.customEndTime)}
+            </p>
           </div>
         </div>
       </div>
