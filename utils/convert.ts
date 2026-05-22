@@ -25,11 +25,14 @@ function removeFileExtension(fileName: string) {
 }
 
 function validateVideoSettings(videoSettings: VideoInputSettings): void {
-  if (videoSettings.customEndTime < videoSettings.customStartTime) {
-    throw new Error("End time cannot be less than start time");
-  }
   if (videoSettings.customStartTime < 0) {
     throw new Error("Start time cannot be negative");
+  }
+  // Only validate end time when both bounds are explicitly set (non-zero)
+  if (videoSettings.customEndTime > 0 || videoSettings.customStartTime > 0) {
+    if (videoSettings.customEndTime <= videoSettings.customStartTime) {
+      throw new Error("End time must be greater than start time");
+    }
   }
 }
 

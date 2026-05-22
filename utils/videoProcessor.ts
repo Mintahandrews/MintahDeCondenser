@@ -1,3 +1,9 @@
+/**
+ * @server-only — Legacy server-side video processor using Node.js child_process.
+ * This file CANNOT run in the browser. The active in-browser processor uses
+ * @ffmpeg/ffmpeg (WebAssembly) via utils/convert.ts + utils/ffmpegCommands.ts.
+ * Kept for potential future server-side API route usage.
+ */
 import { spawn } from "child_process";
 import { existsSync } from "fs";
 

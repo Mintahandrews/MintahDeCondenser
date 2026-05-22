@@ -119,12 +119,23 @@ const CondenseVideo = () => {
     }
   };
 
-  const loadWithToast = () => {
-    toast.promise(load, {
+  const loadWithToast = () =>
+    toast.promise(load(), {
       loading: "Loading video processing capabilities...",
       success: "Ready to process videos",
       error: "Failed to load video processor. Please refresh the page.",
     });
+
+  const handleClear = () => {
+    // Revoke all object URLs before clearing state
+    if (videoFile?.url) URL.revokeObjectURL(videoFile.url);
+    if (videoUrl) URL.revokeObjectURL(videoUrl);
+    // Reset all state
+    setVideoFile(undefined);
+    setVideoUrl(null);
+    setProgress(0);
+    setTime({ elapsedSeconds: 0 });
+    setStatus("ready");
   };
 
   useEffect(() => {
@@ -189,15 +200,6 @@ const CondenseVideo = () => {
       console.error("Conversion error:", error);
       setStatus("error");
       toast.error(error instanceof Error ? error.message : "Error processing video");
-      
-      // Reset FFmpeg instance on error
-      try {
-        ffmpegRef.current.terminate();
-        ffmpegRef.current = new FFmpeg();
-        await loadWithToast();
-      } catch (resetError) {
-        console.error("Failed to reset FFmpeg:", resetError);
-      }
     } finally {
       setTime((oldTime) => ({ ...oldTime, startTime: undefined }));
       setProgress(0);
@@ -231,7 +233,7 @@ const CondenseVideo = () => {
               <>
                 <VideoInputDetails
                   videoFile={videoFile}
-                  onClear={() => window.location.reload()}
+                  onClear={handleClear}
                 />
                 <VideoTrim
                   disable={disableDuringCompression}

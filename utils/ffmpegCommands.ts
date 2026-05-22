@@ -1,5 +1,15 @@
 import { getFileExtension } from "./convert";
-import { VideoFormats, VideoInputSettings } from "./types";
+import { QualityType, VideoFormats, VideoInputSettings } from "./types";
+
+/** Maps QualityType enum to the numeric CRF value expected by libx264. */
+const getCRFValue = (quality: QualityType): string => {
+  const map: Record<QualityType, string> = {
+    [QualityType.High]: "18",
+    [QualityType.Medium]: "23",
+    [QualityType.Low]: "28",
+  };
+  return map[quality] ?? "23";
+};
 
 export const whatsappStatusCompressionCommand = (
   input: string,
@@ -185,7 +195,7 @@ const getMP4Command = (
     "-pix_fmt",
     "yuv420p",
     "-crf",
-    videoSettings.quality,
+    getCRFValue(videoSettings.quality),
     "-maxrate",
     "4000k",
     "-bufsize",
@@ -216,7 +226,7 @@ const getMOVCommand = (
     "-tune",
     "fastdecode",
     "-crf",
-    videoSettings.quality,
+    getCRFValue(videoSettings.quality),
     "-pix_fmt",
     "yuv420p",
     "-vf",
@@ -245,7 +255,7 @@ const getMKVCommand = (
     "-tune",
     "fastdecode",
     "-crf",
-    videoSettings.quality,
+    getCRFValue(videoSettings.quality),
     "-pix_fmt",
     "yuv420p",
     "-vf",
@@ -272,7 +282,7 @@ const getAVICommand = (
     "-tune",
     "fastdecode",
     "-crf",
-    videoSettings.quality,
+    getCRFValue(videoSettings.quality),
     "-pix_fmt",
     "yuv420p",
     "-vf",
