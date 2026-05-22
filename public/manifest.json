@@ -1,11 +1,17 @@
 {
+  "id": "https://condenser.codemintah.dev",
   "name": "Mintah De Condenser",
   "short_name": "MDC",
-  "description": "Professional-grade video compression in your browser",
-  "start_url": "/",
+  "description": "Free browser-based video compressor. Reduce file sizes by up to 90% with no uploads required.",
+  "start_url": "https://condenser.codemintah.dev/",
+  "scope": "https://condenser.codemintah.dev/",
   "display": "standalone",
+  "orientation": "portrait-primary",
   "background_color": "#ffffff",
   "theme_color": "#0F172A",
+  "lang": "en",
+  "categories": ["multimedia", "utilities", "productivity"],
+  "screenshots": [],
   "icons": [
     {
       "src": "/favicon.ico",
@@ -15,12 +21,14 @@
     {
       "src": "/icon-192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
       "src": "/icon-512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }

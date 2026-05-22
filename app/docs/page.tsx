@@ -1,3 +1,20 @@
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Documentation — How to Compress Videos",
+  description:
+    "Learn how to use Mintah De Condenser to compress videos in your browser. Step-by-step guide covering quality settings, format conversion, Twitter optimization, WhatsApp Status presets, and audio removal.",
+  alternates: {
+    canonical: "https://condenser.codemintah.dev/docs",
+  },
+  openGraph: {
+    title: "Mintah De Condenser Documentation",
+    description:
+      "Step-by-step guide to browser-based video compression. Quality settings, format support, Twitter & WhatsApp presets.",
+    url: "https://condenser.codemintah.dev/docs",
+  },
+};
+
 export default function Documentation() {
   return (
     <div className="max-w-4xl mx-auto pt-32 px-6 lg:px-0 pb-20">
@@ -72,7 +89,7 @@ export default function Documentation() {
             <h3 className="text-xl font-semibold mb-3">Technology Stack</h3>
             <ul className="list-disc pl-6 space-y-2 text-gray-600">
               <li>
-                <strong>Frontend:</strong> Next.js 14, React, TypeScript,
+                <strong>Frontend:</strong> Next.js 15, React, TypeScript,
                 Tailwind CSS
               </li>
               <li>

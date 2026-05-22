@@ -1,4 +1,20 @@
+import type { Metadata } from "next";
 import CondenseVideoClient from "./_components/condense-video-client";
+
+export const metadata: Metadata = {
+  title: "Compress Video Free Online",
+  description:
+    "Upload any video and compress it up to 90% smaller — entirely in your browser. No file size limits, no uploads to servers, no sign-up required. Supports MP4, MOV, MKV, AVI, WebM, WhatsApp and Twitter formats.",
+  alternates: {
+    canonical: "https://condenser.codemintah.dev/video",
+  },
+  openGraph: {
+    title: "Free Online Video Compressor — Mintah De Condenser",
+    description:
+      "Compress any video up to 90% smaller in your browser. No uploads. No sign-up. Supports MP4, MOV, MKV, WebM, Twitter & WhatsApp presets.",
+    url: "https://condenser.codemintah.dev/video",
+  },
+};
 
 const Page = () => {
   return (
